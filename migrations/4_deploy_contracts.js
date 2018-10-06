@@ -1,13 +1,13 @@
 const BaseEscrowLib = artifacts.require('./BaseEscrowLib.sol')
 const DateTime = artifacts.require('./DateTime.sol')
-const FlexibleEscrowLib = artifacts.require('./FlexibleEscrowLib.sol')
+const StrictEscrowLib = artifacts.require('./StrictEscrowLib.sol')
 
 module.exports = (deployer) => {
     deployer.deploy(DateTime);
     deployer.link(DateTime, BaseEscrowLib);
     deployer.deploy(BaseEscrowLib);
 
-    deployer.link(DateTime, FlexibleEscrowLib);
-    deployer.link(BaseEscrowLib, FlexibleEscrowLib);
-    deployer.deploy(FlexibleEscrowLib);
+    deployer.link(DateTime, StrictEscrowLib);
+    deployer.link(BaseEscrowLib, StrictEscrowLib);
+    deployer.deploy(StrictEscrowLib);
 };
