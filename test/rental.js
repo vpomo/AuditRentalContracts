@@ -33,7 +33,7 @@ contract('MyToken', (accounts) => {
         var balanceAccountOne = await contractToken.balanceOf.call(accounts[1]);
         assert.equal(1e21, Number(balanceAccountOne));
         //console.log("balanceAccountOne", Number(balanceAccountOne));
-        await contractToken.faucetWithdrawToken(1e21, {from:accounts[1]});
+        //await contractToken.faucetWithdrawToken(1e21, {from:accounts[1]});
         //await contractToken.faucetWithdrawToken(1e21, {from:accounts[1]});
 
     });
@@ -48,10 +48,10 @@ contract('MyToken', (accounts) => {
         var feeBalance = await contractFactoty.GetFeeBalance.call(1);
         console.log("feeBalance", Number(feeBalance));
 
-        var aaaa = await contractFactoty.CreateContract.call(45, 1, 1539561600, 1544400000, 100, "0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db",
+        var aaaa = await contractFactoty.CreateContract.call(45, 1, 1539561600, 1539993600, 100, "0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db",
                                             "lock data", 1, 1, "GUID", 100, {from:accounts[1]});
-        // 1539561600 - Mon, 15 Oct 2018
-        // 1544400000 - Mon, 10 Dec 2018
+        // 1539561600 - 15 Oct 2018
+        // 1539993600 - 20 oct 2018
         // extraAmount = 100
         // 	_TotalAmount = 2620
         // CalculateCreateFee(uint(contracts[keccak256(Guid)]._TotalAmount)) = 262
