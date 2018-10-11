@@ -16,12 +16,14 @@ contract('StayBitContractFactory', (accounts) => {
     });
 });
 
-contract('MyToken', (accounts) => {
+contract('MyToken and StayBitContractFactory', (accounts) => {
     var addressLandlord = accounts[2];
     var guid = "23fff-fhgjg";
 
-    var guidTestTenant = "23fff-tenant";
-    var guidTestLandlord = "23fff-landlord";
+    var guidTestTenant = "23fff-tenantTerminate";
+    var guidTestLandlord = "23fff-landlordTerminate";
+    var guidTestMoveIn = "23fff-tenantMoveIn";
+
 
     it('should deployed MyToken', async ()  => {
         assert.equal(undefined, contractToken);
@@ -35,10 +37,13 @@ contract('MyToken', (accounts) => {
         //console.log("balanceOwner", Number(balanceOwner));
         assert.equal(1e24, Number(balanceOwner));
 
-        await contractToken.faucetWithdrawToken(1e21, {from:accounts[1]});
+        await contractToken.faucetWithdrawToken(1e3, {from:accounts[1]});
         var balanceAccountOne = await contractToken.balanceOf.call(accounts[1]);
-        assert.equal(1e21, Number(balanceAccountOne));
+        assert.equal(1e3, Number(balanceAccountOne));
         await contractToken.approve(contractFactoty.address, 1e21, {from:accounts[1]});
+
+        await contractToken.faucetWithdrawToken(1e3, {from:accounts[4]});
+        await contractToken.approve(contractFactoty.address, 1e21, {from:accounts[4]});
 
     });
 
@@ -49,12 +54,17 @@ contract('MyToken', (accounts) => {
 
     it('set factory params and create contractFactory', async ()  => {
         await contractFactoty.SetFactoryParams(true, true, 10);
+		//Mon, 15 Oct 2018
+		//Sat, 20 Oct 2018
         await contractFactoty.CreateContract(45, 1, 1539561600, 1539993600, 10,
         addressLandlord, "lock data", 1, 1, guid, 100, {from:accounts[1]});
     });
 
-    it('test status terminate contract by Tenant', async ()  => {
-        await contractFactoty.CreateContract(45, 1, 1539561600, 1539993600, 10,
+    it('test terminate contract by Tenant', async ()  => {
+
+		//Mon, 15 Oct 2018
+		//Sat, 20 Oct 2018
+		await contractFactoty.CreateContract(45, 1, 1539561600, 1539993600, 10,
             addressLandlord, "lock data", 1, 1, guidTestTenant, 100, {from:accounts[1]});
         /*
         curDate = contracts[keccak256(Guid)].GetCurrentDate();
@@ -68,44 +78,101 @@ contract('MyToken', (accounts) => {
         actualMoveOutDate = contracts[keccak256(Guid)]._ActualMoveOutDate;
         cancelPolicy = contracts[keccak256(Guid)]._CancelPolicy;
         */
-        //await contractFactoty.TenantTerminate(guid);
+
         var jsonContractInfo = await contractFactoty.GetContractInfo(guidTestTenant);
-        //["1539200057","1","0",false,"335",false,"lock data","235","0","1"]
-        console.log("Before", JSON.stringify(jsonContractInfo));
         assert.equal(1, jsonContractInfo[1]);
         assert.equal(0, jsonContractInfo[2]);
 
-         // var balanceTenant = await contractToken.balanceOf.call(accounts[1]);
-         // console.log("Before balance Tenant", Number(balanceTenant));
-         // var balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
-         // console.log("Before balance Landlord", Number(balanceLandlord));
+         var balanceTenant = await contractToken.balanceOf.call(accounts[1]);
+         var balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
 
+        assert.equal(284, balanceTenant);
+        assert.equal(0, balanceLandlord);
 
         await contractFactoty.TenantTerminate(guidTestTenant, {from:accounts[1]});
         jsonContractInfo = await contractFactoty.GetContractInfo(guidTestTenant);
         assert.equal(2, jsonContractInfo[1]);
-        console.log("After", JSON.stringify(jsonContractInfo));
 
           balanceTenant = await contractToken.balanceOf.call(accounts[1]);
-          console.log("After balance Tenant", Number(balanceTenant));
-         // balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
-         // console.log("After balance Landlord", Number(balanceLandlord));
+          balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(574, balanceTenant);
+        assert.equal(45, balanceLandlord);
     });
 
-    it('test status terminate contract by Landlord', async ()  => {
+    it('test terminate contract by Landlord', async ()  => {
+		//Mon, 15 Oct 2018
+		//Sat, 20 Oct 2018
         await contractFactoty.CreateContract(45, 1, 1539561600, 1539993600, 10,
         addressLandlord, "lock data", 1, 1, guidTestLandlord, 100, {from:accounts[1]});
         var jsonContractInfo = await contractFactoty.GetContractInfo(guidTestLandlord);
-        //["1539200057","1","0",false,"335",false,"lock data","235","0","1"]
-        console.log("Before", JSON.stringify(jsonContractInfo));
+
         assert.equal(1, jsonContractInfo[1]);
         assert.equal(0, jsonContractInfo[2]);
+
+        var balanceTenant = await contractToken.balanceOf.call(accounts[1]);
+        var balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(216, balanceTenant);
+        assert.equal(45, balanceLandlord);
 
         await contractFactoty.LandlordTerminate(10, guidTestLandlord, {from:accounts[2]});
 
         jsonContractInfo = await contractFactoty.GetContractInfo(guidTestLandlord);
-        console.log("After", JSON.stringify(jsonContractInfo));
         assert.equal(3, jsonContractInfo[1]);
+
+        balanceTenant = await contractToken.balanceOf.call(accounts[1]);
+        balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(551, balanceTenant);
+        assert.equal(45, balanceLandlord);
+
+    });
+
+    it('test Tenant MoveIn', async ()  => {
+		var balanceTenant = await contractToken.balanceOf.call(accounts[4]);
+        var balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(1000, balanceTenant);
+        assert.equal(45, balanceLandlord);
+	
+		//Mon, 15 Oct 2018
+		//Sat, 20 Oct 2018
+        await contractFactoty.CreateContract(45, 1, 1539561600, 1539993600, 10,
+            addressLandlord, "lock data", 1, 1, guidTestMoveIn, 100, {from:accounts[4]});
+
+    	//Thu, 11 Oct 2018
+        await contractFactoty.SimulateCurrentDate(1539216000, guidTestMoveIn, {from:accounts[4]});
+
+			var jsonContractInfo = await contractFactoty.GetContractInfo(guidTestMoveIn);
+        assert.equal(1, jsonContractInfo[1]);
+        assert.equal(0, jsonContractInfo[2]);
+
+        balanceTenant = await contractToken.balanceOf.call(accounts[4]);
+        balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(642, balanceTenant);
+        assert.equal(45, balanceLandlord);
+
+		//Mon, 15 Oct 2018
+        await contractFactoty.SimulateCurrentDate(1539562600, guidTestMoveIn, {from:accounts[4]});
+
+        await contractFactoty.TenantMoveIn(guidTestMoveIn, {from:accounts[4]});
+		
+		//Tue, 20 Nov 2018 
+        await contractFactoty.SimulateCurrentDate(1542672000, guidTestMoveIn, {from:accounts[4]});
+
+        await contractFactoty.TenantTerminate(guidTestMoveIn, {from:accounts[4]});
+
+        jsonContractInfo = await contractFactoty.GetContractInfo(guidTestMoveIn);
+        assert.equal(8, jsonContractInfo[1]);
+
+        balanceTenant = await contractToken.balanceOf.call(accounts[4]);
+        balanceLandlord = await contractToken.balanceOf.call(accounts[2]);
+
+        assert.equal(752, balanceTenant);
+        assert.equal(270, balanceLandlord);
+
     });
 
 });

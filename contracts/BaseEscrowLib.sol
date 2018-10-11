@@ -87,10 +87,10 @@ library BaseEscrowLib
 
 
 	//DEBUG or TESTNET
-	//bool private constant EnableSimulatedCurrentDate = true;
+	bool private constant EnableSimulatedCurrentDate = true;
 
 	//RELEASE
-	bool private constant EnableSimulatedCurrentDate = false;
+	//bool private constant EnableSimulatedCurrentDate = false;
 
 
 	//LogEvent wrapper

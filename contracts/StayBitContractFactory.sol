@@ -76,7 +76,7 @@ contract StayBitContractFactory is Ownable
 
 
     //75, 1, 1533417601, 1534281601, 100, "0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "", "0x4514d8d91a10bda73c10e2b8ffd99cb9646620a9", 1, "test"
-	function CreateContract(int rentPerDay, int cancelPolicy, uint moveInDate, uint moveOutDate, int secDeposit, address landlord, string doorLockData, uint tokenId, int Id, string Guid, uint extraAmount) public returns (bytes32 result)
+	function CreateContract(int rentPerDay, int cancelPolicy, uint moveInDate, uint moveOutDate, int secDeposit, address landlord, string doorLockData, uint tokenId, int Id, string Guid, uint extraAmount) public
 	{
 		//It must be enabled
 		require (CreateEnabled && rentPerDay > 0 && secDeposit > 0 && moveInDate > 0 && moveOutDate > 0 && landlord != address(0) && landlord != msg.sender && Id > 0);
@@ -94,7 +94,7 @@ contract StayBitContractFactory is Ownable
 		//PRODUCTION
 		require (cancelPolicy == 1 || cancelPolicy == 2);
 
-		//Check that GUID does not exist
+		//Check that GUID does not exist		
 		require (contracts[keccak256(Guid)]._Id == 0);
 
 		contracts[keccak256(Guid)]._CurrentDate = now;
@@ -122,7 +122,7 @@ contract StayBitContractFactory is Ownable
 		//Check that tenant has funds
 		require(extraAmount + uint(contracts[keccak256(Guid)]._TotalAmount) + CalculateCreateFee(uint(contracts[keccak256(Guid)]._TotalAmount)) <= contracts[keccak256(Guid)]._tokenApi.balanceOf(msg.sender));
 
-		//Fund. Token fee, if any, will be witheld here
+		//Fund. Token fee, if any, will be witheld here 
 		contracts[keccak256(Guid)]._tokenApi.transferFrom(msg.sender, this, extraAmount + uint(contracts[keccak256(Guid)]._TotalAmount) + CalculateCreateFee(uint(contracts[keccak256(Guid)]._TotalAmount)));
 
 		//We need to measure balance diff because some tokens (TrueUSD) charge fees per transfer
@@ -133,9 +133,6 @@ contract StayBitContractFactory is Ownable
 
 		//raise event
 		contractCreated(rentPerDay, cancelPolicy, moveInDate, moveOutDate, secDeposit, landlord, tokenId, Id, Guid, extraAmount);
-
-		result = keccak256(Guid);
-		//return uint(contracts[keccak256(Guid)]._TotalAmount);
 	}
 
 	function() payable
@@ -151,27 +148,20 @@ contract StayBitContractFactory is Ownable
 	}
 	
 	
-	function GetContractInfo(string Guid) public constant returns (uint curDate, int escrState, int escrStage, bool tenantMovedIn,
-		uint actualBalance, bool misrepSignaled, string doorLockData, int calcAmount, uint actualMoveOutDate, int cancelPolicy
-		//int tenantBal, int landlBal,
-		//address addressTenant
-	)
+	function GetContractInfo(string Guid) public constant returns (uint curDate, int escrState, int escrStage, bool tenantMovedIn, uint actualBalance, bool misrepSignaled, string doorLockData, int calcAmount, uint actualMoveOutDate, int cancelPolicy)
 	{
 		if (contracts[keccak256(Guid)]._Id != 0)
 		{
-			curDate = contracts[keccak256(Guid)].GetCurrentDate();
-			escrState = contracts[keccak256(Guid)]._State;
-			escrStage = contracts[keccak256(Guid)].GetCurrentStage();
-			tenantMovedIn = contracts[keccak256(Guid)]._TenantConfirmedMoveIn;
 			actualBalance = contracts[keccak256(Guid)].GetContractBalance();
+			curDate = contracts[keccak256(Guid)].GetCurrentDate();
+			tenantMovedIn = contracts[keccak256(Guid)]._TenantConfirmedMoveIn;
 			misrepSignaled = contracts[keccak256(Guid)]._MisrepSignaled;
 			doorLockData = contracts[keccak256(Guid)]._DoorLockData;
+			escrStage = contracts[keccak256(Guid)].GetCurrentStage();
+			escrState = contracts[keccak256(Guid)]._State;
 			calcAmount = contracts[keccak256(Guid)]._TotalAmount;
 			actualMoveOutDate = contracts[keccak256(Guid)]._ActualMoveOutDate;
 			cancelPolicy = contracts[keccak256(Guid)]._CancelPolicy;
-			//tenantBal = contracts[keccak256(Guid)]._tenantBal;
-			//landlBal = contracts[keccak256(Guid)]._landlBal;
-		    //addressTenant = contracts[keccak256(Guid)]._landlord;
 		}
 	}
 		
@@ -298,7 +288,7 @@ contract StayBitContractFactory is Ownable
 			if (contracts[keccak256(Guid)]._landlBal > 0)
 			{	
 				uint landlBal = uint(contracts[keccak256(Guid)]._landlBal);
-				contracts[keccak256(Guid)]._landlBal = 0;
+				contracts[keccak256(Guid)]._landlBal = 0;		
 				contracts[keccak256(Guid)]._tokenApi.transfer(contracts[keccak256(Guid)]._landlord, landlBal);
 				contracts[keccak256(Guid)]._Balance -= landlBal;						
 			}
@@ -307,7 +297,7 @@ contract StayBitContractFactory is Ownable
 			{			
 				uint tenantBal = uint(contracts[keccak256(Guid)]._tenantBal);
 				contracts[keccak256(Guid)]._tenantBal = 0;
-				contracts[keccak256(Guid)]._tokenApi.transfer(contracts[keccak256(Guid)]._tenant, tenantBal);
+				contracts[keccak256(Guid)]._tokenApi.transfer(contracts[keccak256(Guid)]._tenant, tenantBal);			
 				contracts[keccak256(Guid)]._Balance -= tenantBal;
 			}
 		}			    
